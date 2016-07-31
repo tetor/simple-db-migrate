@@ -2,8 +2,15 @@ import unittest
 import simple_db_migrate
 import os
 import sys
-from StringIO import StringIO
-from mock import patch, Mock
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+from mock import patch, Mock, MagicMock
+
+try:
+    from importlib import reload
+except ImportError: pass
 
 class RunTest(unittest.TestCase):
 
@@ -233,6 +240,7 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
         self.assertTrue(isinstance(config_used, simple_db_migrate.config.FileConfig))
         self.assertEqual('host_on_sample_configuration_filename', config_used.get('database_host'))
 
+    @patch.dict('sys.modules', MySQLdb=MagicMock())
     @patch.object(simple_db_migrate.main.Main, 'labels', return_value=["v1", "foo", "v3"])
     def test_it_should_print_labels_on_database_and_exit(self, labels_mock):
         try:
@@ -242,6 +250,7 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
 
         self.assertEqual('v1\nfoo\nv3\n\n', sys.stdout.getvalue())
 
+    @patch.dict('sys.modules', MySQLdb=MagicMock())
     @patch.object(simple_db_migrate.main.Main, 'labels', return_value=[])
     def test_it_should_print_none_when_there_are_no_labels_on_database_and_exit(self, labels_mock):
         try:
@@ -251,6 +260,7 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
 
         self.assertEqual('NONE\n\n', sys.stdout.getvalue())
 
+    @patch.dict('sys.modules', MySQLdb=MagicMock())
     @patch.object(simple_db_migrate.main.Main, 'last_label', return_value="v3")
     def test_it_should_print_last_label_on_database_and_exit(self, last_label_mock):
         try:
@@ -260,6 +270,7 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
 
         self.assertEqual('v3\n\n', sys.stdout.getvalue())
 
+    @patch.dict('sys.modules', MySQLdb=MagicMock())
     @patch.object(simple_db_migrate.main.Main, 'last_label', return_value=None)
     def test_it_should_print_none_as_last_label_when_there_are_no_labels_on_database_and_exit(self, last_label_mock):
         try:
@@ -269,6 +280,7 @@ DATABASE_OTHER_CUSTOM_VARIABLE = 'Value'
 
         self.assertEqual('NONE\n\n', sys.stdout.getvalue())
 
+    @patch.dict('sys.modules', MySQLdb=MagicMock())
     def test_it_should_print_error_message_and_exit_when_required_info_is_not_valid(self):
         try:
             simple_db_migrate.run_from_argv(["--info", "not_valid", "-c", os.path.abspath('sample.conf')])
