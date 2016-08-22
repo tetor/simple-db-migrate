@@ -18,8 +18,8 @@ class MySQL(object):
 
         self.__mysql_driver = mysql_driver
         if not mysql_driver:
-            import MySQLdb
-            self.__mysql_driver = MySQLdb
+            import pymysql
+            self.__mysql_driver = pymysql
 
         if config.get("drop_db_first"):
             self._drop_database()
